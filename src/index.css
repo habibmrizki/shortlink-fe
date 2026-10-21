@@ -6,3 +6,9 @@
   padding: none;
   box-sizing: border-box;
 }
+
+@theme {
+  --color-brand-background: #f8fafc;
+  --color-brand-content: #ffffff;
+  --color-brand-text: #004ac6;
+}
