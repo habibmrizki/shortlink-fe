@@ -7,7 +7,7 @@ function Footer() {
   ];
 
   return (
-    <footer className="flex w-full flex-col gap-6 bg-slate-100 px-6 py-10 text-xs font-bold tracking-wider text-slate-500 uppercase sm:flex-row sm:items-center sm:justify-between sm:px-12">
+    <footer className="flex w-full flex-col gap-6 bg-brand-background px-6 py-10 text-xs font-bold tracking-wider text-slate-500 uppercase sm:flex-row sm:items-center sm:justify-between sm:px-12">
       <p className="">&copy; 2026 Shortlink. The Digital Architect.</p>
 
       {links.length > 0 && (
