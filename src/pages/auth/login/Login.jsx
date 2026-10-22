@@ -13,6 +13,7 @@ import {
   loginAction,
   resetAuthState,
 } from "../../../redux/slices/auth/authSlice";
+import { toast } from "react-toastify";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -42,6 +43,12 @@ const Login = () => {
     };
   }, [dispatch]);
 
+  useEffect(() => {
+    if (flashMessage) {
+      toast.success(flashMessage);
+    }
+  }, [flashMessage]);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLocalError("");
@@ -50,11 +57,13 @@ const Login = () => {
     const cleanEmail = email.trim();
     if (!cleanEmail) {
       setLocalError("Email address is required.");
+      toast.warning("Email address is required.");
       return;
     }
 
     if (!password) {
       setLocalError("Password is required.");
+      toast.warning("Password is required.");
       return;
     }
 
@@ -63,7 +72,10 @@ const Login = () => {
     );
 
     if (loginAction.fulfilled.match(result)) {
+      toast.success("Welcome back! Login successful.");
       navigate("/");
+    } else if (loginAction.rejected.match(result)) {
+      toast.error(result.payload || "Login failed. Please check your credentials.");
     }
   };
 
