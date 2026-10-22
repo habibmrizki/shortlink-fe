@@ -24,6 +24,9 @@ const CreateLink = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const shortLinkBaseUrl = import.meta.env.DEV
+    ? `${window.location.protocol}//${window.location.hostname}:2901`
+    : window.location.origin;
 
   const { isCreating, isCheckingSlug, slugStatus, error } = useSelector(
     (state) => state.link,
@@ -85,7 +88,9 @@ const CreateLink = () => {
         setLocalError(
           "Custom slug can only contain letters, numbers, and hyphens.",
         );
-        toast.warning("Custom slug can only contain letters, numbers, and hyphens.");
+        toast.warning(
+          "Custom slug can only contain letters, numbers, and hyphens.",
+        );
         return;
       }
       const reserved = ["api", "login", "register", "dashboard"];
@@ -105,11 +110,7 @@ const CreateLink = () => {
 
     if (createLinkAction.fulfilled.match(result)) {
       toast.success("Short link created successfully!");
-      navigate("/dashboard", {
-        state: {
-          successMessage: "Short link created successfully!",
-        },
-      });
+      navigate("/dashboard");
     } else if (createLinkAction.rejected.match(result)) {
       toast.error(result.payload || "Failed to create short link.");
     }
@@ -268,7 +269,7 @@ const CreateLink = () => {
               <p className="mt-2 min-w-0 pl-5.5 text-sm font-medium text-slate-800">
                 Your short link will be:{" "}
                 <span className="break-all font-bold text-brand-text">
-                  http://localhost:2901/{customSlug || "randomSlug"}
+                  {shortLinkBaseUrl}/{customSlug || "randomSlug"}
                 </span>
               </p>
             </div>
