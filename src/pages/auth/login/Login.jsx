@@ -1,14 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate, useLocation } from "react-router";
 import { useDispatch, useSelector } from "react-redux";
-import {
-  ArrowRight,
-  Eye,
-  EyeOff,
-  Loader2,
-  AlertCircle,
-  CheckCircle2,
-} from "lucide-react";
+import { ArrowRight, Eye, EyeOff, Loader2, AlertCircle } from "lucide-react";
 import {
   loginAction,
   resetAuthState,
@@ -20,16 +13,13 @@ const Login = () => {
   const location = useLocation();
   const dispatch = useDispatch();
   const { isLoading, isError, errorMessage, isAuthenticated } = useSelector(
-    (state) => state.auth
+    (state) => state.auth,
   );
 
   const [email, setEmail] = useState(location.state?.registeredEmail || "");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [localError, setLocalError] = useState("");
-  const [flashMessage, setFlashMessage] = useState(
-    location.state?.successMessage || ""
-  );
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -43,16 +33,9 @@ const Login = () => {
     };
   }, [dispatch]);
 
-  useEffect(() => {
-    if (flashMessage) {
-      toast.success(flashMessage);
-    }
-  }, [flashMessage]);
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLocalError("");
-    setFlashMessage("");
 
     const cleanEmail = email.trim();
     if (!cleanEmail) {
@@ -67,15 +50,15 @@ const Login = () => {
       return;
     }
 
-    const result = await dispatch(
-      loginAction({ email: cleanEmail, password })
-    );
+    const result = await dispatch(loginAction({ email: cleanEmail, password }));
 
     if (loginAction.fulfilled.match(result)) {
       toast.success("Welcome back! Login successful.");
       navigate("/");
     } else if (loginAction.rejected.match(result)) {
-      toast.error(result.payload || "Login failed. Please check your credentials.");
+      toast.error(
+        result.payload || "Login failed. Please check your credentials.",
+      );
     }
   };
 
@@ -100,16 +83,6 @@ const Login = () => {
           <p className="mt-1.5 text-xs text-slate-500">
             Please enter your details to sign in.
           </p>
-
-          {flashMessage && (
-            <div className="mt-4 flex items-start gap-2.5 rounded-md border border-emerald-200 bg-emerald-50 p-3 text-xs text-emerald-700">
-              <CheckCircle2
-                size={16}
-                className="mt-0.5 shrink-0 text-emerald-500"
-              />
-              <span className="leading-relaxed">{flashMessage}</span>
-            </div>
-          )}
 
           {displayedError && (
             <div className="mt-4 flex items-start gap-2.5 rounded-md border border-red-200 bg-red-50 p-3 text-xs text-red-700">
