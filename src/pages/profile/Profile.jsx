@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import { logoutAction } from "../../redux/slices/auth/authSlice";
 import { getLinksAction } from "../../redux/slices/link/linkSlice";
+import { toast } from "react-toastify";
 
 const Profile = () => {
   const navigate = useNavigate();
@@ -28,6 +29,7 @@ const Profile = () => {
 
   const handleLogout = async () => {
     await dispatch(logoutAction());
+    toast.success("Logged out successfully.");
     navigate("/");
   };
 
@@ -69,7 +71,7 @@ const Profile = () => {
           </div>
 
           <div className="mt-8 flex items-center gap-5">
-            <div className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-blue-600 text-white shadow-md">
+            <div className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-blue-50 shadow-md">
               <User size={30} strokeWidth={1.75} />
             </div>
             <div>
@@ -159,8 +161,8 @@ const Profile = () => {
                   Two-Factor Authentication
                 </span>
               </div>
-              <span className="text-[10px] font-bold uppercase tracking-wide text-amber-700 bg-amber-50 px-2.5 py-1 rounded-md border border-amber-200">
-                Not Configured
+              <span className="text-[10px] font-bold uppercase tracking-wide text-[#BA1A1A] px-2.5 py-1 rounded-md ">
+                DISABLED
               </span>
             </div>
           </div>
