@@ -1,4 +1,7 @@
-import { Link2, Zap, Link, Users, Check } from "lucide-react";
+import { useState } from "react";
+import { Link, useNavigate } from "react-router";
+import { useSelector } from "react-redux";
+import { Link2, Zap, Link as LinkIcon, Users, Check } from "lucide-react";
 
 const features = [
   {
@@ -14,7 +17,7 @@ const features = [
     title: "Custom Slugs",
     description:
       "Maintain brand authority with readable, custom link endings that resonate with your digital audience.",
-    icon: Link,
+    icon: LinkIcon,
     iconBg: "bg-blue-100",
     iconColor: "text-blue-600",
     lineColor: "bg-blue-300",
@@ -37,6 +40,25 @@ const insights = [
 ];
 
 const LandingPage = () => {
+  const { user, isAuthenticated } = useSelector((state) => state.auth);
+  const navigate = useNavigate();
+  const [quickUrl, setQuickUrl] = useState("");
+
+  const handleQuickShorten = (e) => {
+    e.preventDefault();
+    if (!quickUrl.trim()) return;
+
+    if (isAuthenticated) {
+      navigate("/create-link", { state: { initialUrl: quickUrl.trim() } });
+    } else {
+      navigate("/login", {
+        state: {
+          successMessage: "Please log in first to create and manage short links.",
+        },
+      });
+    }
+  };
+
   return (
     <div>
       <div className="font-sans text-slate-900 antialiased">
@@ -44,6 +66,13 @@ const LandingPage = () => {
           <div className="pointer-events-none absolute left-1/2 top-1/2 h-72 w-xl max-w-full -translate-x-1/2 -translate-y-1/3 rounded-full bg-blue-200/30 blur-3xl" />
 
           <div className="relative mx-auto flex max-w-3xl flex-col items-center text-center">
+            {isAuthenticated && (
+              <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-blue-200 bg-blue-50 px-4 py-1.5 text-xs font-semibold text-blue-700 shadow-xs">
+                <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+                Welcome back, {user?.email}
+              </div>
+            )}
+
             <h1 className="text-4xl font-extrabold leading-[1.1] tracking-tight text-black sm:text-5xl lg:text-[56px]">
               Shorten URLs. <span className="text-blue-600">Share Easily.</span>
             </h1>
@@ -55,29 +84,43 @@ const LandingPage = () => {
             </p>
 
             <div className="mt-8 flex items-center gap-3">
-              <button className="rounded-lg bg-blue-600 px-6 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700">
-                Get Started
-              </button>
-              <button className="rounded-lg border border-slate-200 bg-white px-6 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50">
+              <Link
+                to={isAuthenticated ? "/dashboard" : "/register"}
+                className="rounded-lg bg-blue-600 px-6 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700"
+              >
+                {isAuthenticated ? "Go to Dashboard" : "Get Started"}
+              </Link>
+              <a
+                href="#features"
+                className="rounded-lg border border-slate-200 bg-white px-6 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+              >
                 Learn More
-              </button>
+              </a>
             </div>
 
-            <div className="mt-12 flex w-full items-center gap-2 rounded-xl border border-slate-100 bg-white p-2 shadow-[0_8px_30px_rgb(0,0,0,0.06)]">
+            <form
+              onSubmit={handleQuickShorten}
+              className="mt-12 flex w-full items-center gap-2 rounded-xl border border-slate-100 bg-white p-2 shadow-[0_8px_30px_rgb(0,0,0,0.06)]"
+            >
               <Link2 size={18} className="ml-3 shrink-0 text-slate-300" />
               <input
                 type="url"
+                value={quickUrl}
+                onChange={(e) => setQuickUrl(e.target.value)}
                 placeholder="https://very-long-architectural-url.com/asset-id-99238-x1"
                 className="min-w-0 flex-1 bg-transparent px-2 py-3 text-sm text-slate-700 outline-none placeholder:text-slate-400"
               />
-              <button className="shrink-0 whitespace-nowrap rounded-lg bg-blue-600 px-7 py-3 text-sm font-semibold text-white transition hover:bg-blue-700">
+              <button
+                type="submit"
+                className="shrink-0 whitespace-nowrap rounded-lg bg-blue-600 px-7 py-3 text-sm font-semibold text-white transition hover:bg-blue-700 cursor-pointer"
+              >
                 Shorten
               </button>
-            </div>
+            </form>
           </div>
         </section>
 
-        <section className="bg-[#f4f7fa] px-4 pb-24">
+        <section id="features" className="bg-[#f4f7fa] px-4 pb-24">
           <div className="mx-auto max-w-6xl">
             <p className="mb-2 text-xs font-bold uppercase tracking-widest text-blue-600">
               Architectural Features
@@ -122,7 +165,13 @@ const LandingPage = () => {
         <section className="bg-white px-4 py-24">
           <div className="mx-auto flex max-w-6xl flex-col items-center gap-14 lg:flex-row lg:gap-20">
             <div className="relative w-full lg:w-1/2">
-              <img src="features.svg" alt="" />
+              <img
+                src="/features.svg"
+                alt="Analytics features"
+                onError={(e) => {
+                  e.currentTarget.style.display = "none";
+                }}
+              />
             </div>
 
             <div className="w-full lg:w-1/2">
