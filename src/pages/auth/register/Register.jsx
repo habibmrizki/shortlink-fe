@@ -14,6 +14,7 @@ import {
   registerAction,
   resetAuthState,
 } from "../../../redux/slices/auth/authSlice";
+import { toast } from "react-toastify";
 
 const Register = () => {
   const navigate = useNavigate();
@@ -52,26 +53,31 @@ const Register = () => {
 
     if (!email) {
       setLocalError("Email address is required.");
+      toast.warning("Email address is required.");
       return;
     }
 
     if (!password) {
       setLocalError("Password is required.");
+      toast.warning("Password is required.");
       return;
     }
 
     if (password.length < 6) {
       setLocalError("Password must be at least 6 characters long.");
+      toast.warning("Password must be at least 6 characters long.");
       return;
     }
 
     if (password !== confirmPassword) {
       setLocalError("Passwords do not match.");
+      toast.error("Passwords do not match.");
       return;
     }
 
     const result = await dispatch(registerAction({ email, password }));
     if (registerAction.fulfilled.match(result)) {
+      toast.success("Account created successfully! Redirecting to login...");
       setTimeout(() => {
         navigate("/login", {
           state: {
@@ -81,6 +87,8 @@ const Register = () => {
           },
         });
       }, 1200);
+    } else if (registerAction.rejected.match(result)) {
+      toast.error(result.payload || "Registration failed.");
     }
   };
 
@@ -119,7 +127,8 @@ const Register = () => {
               className="mt-0.5 shrink-0 text-emerald-500"
             />
             <span className="leading-relaxed">
-              {successMessage || "Registration successful! Redirecting to login..."}
+              {successMessage ||
+                "Registration successful! Redirecting to login..."}
             </span>
           </div>
         )}
@@ -173,9 +182,6 @@ const Register = () => {
                 {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
               </button>
             </div>
-            <p className="mt-1.5 text-[10px] font-medium uppercase tracking-wide text-slate-500">
-              Minimum 6 characters
-            </p>
           </div>
 
           {/* confirm password */}
@@ -244,7 +250,10 @@ const Register = () => {
 
       <p className="mt-8 text-xs text-slate-600">
         Already have an account?{" "}
-        <Link to="/login" className="font-medium text-brand-text hover:underline">
+        <Link
+          to="/login"
+          className="font-medium text-brand-text hover:underline"
+        >
           Log in
         </Link>
       </p>
