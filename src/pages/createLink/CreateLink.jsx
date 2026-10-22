@@ -18,6 +18,7 @@ import {
   resetLinkStatus,
   resetSlugStatus,
 } from "../../redux/slices/link/linkSlice";
+import { toast } from "react-toastify";
 
 const CreateLink = () => {
   const location = useLocation();
@@ -40,10 +41,17 @@ const CreateLink = () => {
     };
   }, [dispatch]);
 
-  const handleSlugBlur = () => {
+  const handleSlugBlur = async () => {
     const slug = customSlug.trim();
     if (slug.length >= 3) {
-      dispatch(checkSlugAction(slug));
+      const res = await dispatch(checkSlugAction(slug));
+      if (checkSlugAction.fulfilled.match(res)) {
+        if (res.payload.available) {
+          toast.success(`Slug "${slug}" is available!`);
+        } else {
+          toast.error(`Slug "${slug}" is already taken!`);
+        }
+      }
     } else if (slug.length === 0) {
       dispatch(resetSlugStatus());
     }
@@ -56,11 +64,13 @@ const CreateLink = () => {
     const url = destinationUrl.trim();
     if (!url) {
       setLocalError("Destination URL is required.");
+      toast.warning("Destination URL is required.");
       return;
     }
 
     if (!url.startsWith("http://") && !url.startsWith("https://")) {
       setLocalError("URL must start with http:// or https://");
+      toast.warning("URL must start with http:// or https://");
       return;
     }
 
@@ -68,17 +78,20 @@ const CreateLink = () => {
     if (slug) {
       if (slug.length < 3 || slug.length > 50) {
         setLocalError("Custom slug must be between 3 and 50 characters.");
+        toast.warning("Custom slug must be between 3 and 50 characters.");
         return;
       }
       if (!/^[a-zA-Z0-9-]+$/.test(slug)) {
         setLocalError(
           "Custom slug can only contain letters, numbers, and hyphens.",
         );
+        toast.warning("Custom slug can only contain letters, numbers, and hyphens.");
         return;
       }
       const reserved = ["api", "login", "register", "dashboard"];
       if (reserved.includes(slug.toLowerCase())) {
         setLocalError(`Slug cannot use reserved word: "${slug}"`);
+        toast.error(`Slug cannot use reserved word: "${slug}"`);
         return;
       }
     }
@@ -91,11 +104,14 @@ const CreateLink = () => {
     );
 
     if (createLinkAction.fulfilled.match(result)) {
+      toast.success("Short link created successfully!");
       navigate("/dashboard", {
         state: {
           successMessage: "Short link created successfully!",
         },
       });
+    } else if (createLinkAction.rejected.match(result)) {
+      toast.error(result.payload || "Failed to create short link.");
     }
   };
 
