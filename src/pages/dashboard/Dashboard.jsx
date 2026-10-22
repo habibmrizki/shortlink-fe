@@ -161,7 +161,7 @@ const Dashboard = () => {
     <div className="flex-1 bg-brand-background px-4 py-10 font-sans antialiased">
       <div className="mx-auto w-full max-w-3xl">
         {/* Top Header */}
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+        <div className="flex items-start justify-between gap-4">
           <div>
             <h1 className="text-2xl font-bold tracking-tight text-slate-900">
               My Links
@@ -172,14 +172,6 @@ const Dashboard = () => {
           </div>
 
           <div className="flex items-center gap-4">
-            <Link
-              to="/create-link"
-              className="inline-flex items-center gap-1.5 rounded-lg bg-blue-600 px-3.5 py-2 text-xs font-semibold text-white shadow-xs transition hover:bg-blue-700"
-            >
-              <Plus size={14} strokeWidth={2.5} />
-              New Link
-            </Link>
-
             <div className="text-right">
               <p className="text-[10px] font-semibold uppercase tracking-widest text-slate-400">
                 Total Active
