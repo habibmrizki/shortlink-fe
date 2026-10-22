@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Link, useLocation } from "react-router";
+import { Link, useLocation, useSearchParams } from "react-router";
 import { useDispatch, useSelector } from "react-redux";
 import {
   Search,
@@ -22,20 +22,111 @@ import {
   deleteLinkAction,
   resetLinkStatus,
 } from "../../redux/slices/link/linkSlice";
+import { toast } from "react-toastify";
 
 const Dashboard = () => {
   const location = useLocation();
   const dispatch = useDispatch();
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  const urlSearch = searchParams.get("search") || "";
+  const page = Number(searchParams.get("page")) || 1;
+
+  const urlSearch = searchParams.get("search") || "";
+  const urlPage = Number(searchParams.get("page")) || 1;
 
   const { links, pagination, isLoading, isDeleting, error, successMessage } =
     useSelector((state) => state.link);
 
-  const [page, setPage] = useState(1);
-  const [searchQuery, setSearchQuery] = useState("");
+  const [searchQuery, setSearchQuery] = useState(urlSearch);
+  const [prevSearchParam, setPrevSearchParam] = useState(urlSearch);
+  const [isDebouncing, setIsDebouncing] = useState(false);
   const [copiedId, setCopiedId] = useState(null);
   const [flashMessage, setFlashMessage] = useState(
     location.state?.successMessage || "",
   );
+
+  // Sync state if URL search param changed externally
+  if (urlSearch !== prevSearchParam) {
+    setPrevSearchParam(urlSearch);
+    setSearchQuery(urlSearch);
+    setIsDebouncing(false);
+  }
+
+  const handleSearchChange = (e) => {
+    const value = e.target.value;
+    setSearchQuery(value);
+    if (value.trim() !== urlSearch) {
+      setIsDebouncing(true);
+    } else {
+      setIsDebouncing(false);
+    }
+  };
+
+  // Debounce search query updates to URL parameter with 3000ms delay
+  // Sync state if URL search params change externally (e.g. back/forward button)
+  useEffect(() => {
+    const currentParam = searchParams.get("search") || "";
+
+    if (searchQuery.trim() === currentParam) {
+      return;
+    }
+
+    const timer = setTimeout(() => {
+      const newParams = new URLSearchParams(searchParams);
+      if (searchQuery.trim()) {
+        newParams.set("search", searchQuery.trim());
+        newParams.set("page", "1");
+      } else {
+        newParams.delete("search");
+      }
+      setSearchParams(newParams, { replace: true });
+      setIsDebouncing(false);
+    }, 3000);
+
+    return () => {
+      clearTimeout(timer);
+    };
+  }, [searchQuery, searchParams, setSearchParams]);
+
+  useEffect(() => {
+    const paramSearch = searchParams.get("search") || "";
+    if (paramSearch !== searchQuery) {
+      setSearchQuery(paramSearch);
+    }
+    const paramPage = Number(searchParams.get("page")) || 1;
+    if (paramPage !== page) {
+      setPage(paramPage);
+    }
+  }, [searchParams]);
+
+  // Debounce search query updates to URL parameter with 3000ms delay
+  useEffect(() => {
+    const currentParam = searchParams.get("search") || "";
+
+    if (searchQuery.trim() !== currentParam) {
+      setIsDebouncing(true);
+
+      const timer = setTimeout(() => {
+        const newParams = new URLSearchParams(searchParams);
+        if (searchQuery.trim()) {
+          newParams.set("search", searchQuery.trim());
+          newParams.set("page", "1");
+          setPage(1);
+        } else {
+          newParams.delete("search");
+        }
+        setSearchParams(newParams, { replace: true });
+        setIsDebouncing(false);
+      }, 3000);
+
+      return () => {
+        clearTimeout(timer);
+      };
+    } else {
+      setIsDebouncing(false);
+    }
+  }, [searchQuery, searchParams, setSearchParams]);
 
   useEffect(() => {
     dispatch(getLinksAction({ page, limit: 10 }));
@@ -43,6 +134,7 @@ const Dashboard = () => {
 
   useEffect(() => {
     if (flashMessage) {
+      toast.success(flashMessage);
       const timer = setTimeout(() => setFlashMessage(""), 4000);
       return () => clearTimeout(timer);
     }
@@ -51,6 +143,7 @@ const Dashboard = () => {
   const handleCopy = (id, shortUrl) => {
     navigator.clipboard.writeText(shortUrl);
     setCopiedId(id);
+    toast.success("Short link copied to clipboard!");
     setTimeout(() => {
       setCopiedId(null);
     }, 2000);
@@ -58,8 +151,45 @@ const Dashboard = () => {
 
   const handleDelete = async (id) => {
     if (window.confirm("Are you sure you want to delete this short link?")) {
-      await dispatch(deleteLinkAction(id));
+      const res = await dispatch(deleteLinkAction(id));
+      if (deleteLinkAction.fulfilled.match(res)) {
+        toast.success("Link deleted successfully!");
+      } else {
+        toast.error("Failed to delete link.");
+      }
     }
+  };
+
+  const handleClearSearch = () => {
+    setSearchQuery("");
+    setIsDebouncing(false);
+    const newParams = new URLSearchParams(searchParams);
+    newParams.delete("search");
+    newParams.set("page", "1");
+    setSearchParams(newParams, { replace: true });
+  };
+
+  const handlePageChange = (newPage) => {
+    const newParams = new URLSearchParams(searchParams);
+    newParams.set("page", newPage.toString());
+    setSearchParams(newParams);
+  };
+
+  const handleClearSearch = () => {
+    setSearchQuery("");
+    setIsDebouncing(false);
+    const newParams = new URLSearchParams(searchParams);
+    newParams.delete("search");
+    newParams.set("page", "1");
+    setPage(1);
+    setSearchParams(newParams, { replace: true });
+  };
+
+  const handlePageChange = (newPage) => {
+    setPage(newPage);
+    const newParams = new URLSearchParams(searchParams);
+    newParams.set("page", newPage.toString());
+    setSearchParams(newParams);
   };
 
   const filteredLinks = links.filter((link) => {
@@ -163,15 +293,21 @@ const Dashboard = () => {
           <input
             type="text"
             value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            onChange={handleSearchChange}
             placeholder="Search by slug or URL..."
             className="min-w-0 flex-1 bg-transparent text-sm text-slate-700 outline-none placeholder:text-slate-400"
           />
+          {isDebouncing && (
+            <span className="flex items-center gap-1.5 rounded-full bg-blue-50 px-2 py-0.5 text-[10px] font-medium text-blue-600 animate-pulse">
+              <Loader2 size={11} className="animate-spin" />
+              Syncing (3s)...
+            </span>
+          )}
           {searchQuery && (
             <button
               type="button"
-              onClick={() => setSearchQuery("")}
-              className="text-xs text-slate-400 hover:text-slate-600"
+              onClick={handleClearSearch}
+              className="text-xs text-slate-400 hover:text-slate-600 cursor-pointer"
             >
               Clear
             </button>
@@ -290,7 +426,7 @@ const Dashboard = () => {
             <button
               type="button"
               disabled={page <= 1 || isLoading}
-              onClick={() => setPage((prev) => Math.max(1, prev - 1))}
+              onClick={() => handlePageChange(Math.max(1, page - 1))}
               className="flex items-center gap-1 font-medium transition hover:text-slate-800 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
             >
               <ChevronLeft size={13} />
@@ -311,7 +447,7 @@ const Dashboard = () => {
               type="button"
               disabled={page >= pagination.total_pages || isLoading}
               onClick={() =>
-                setPage((prev) => Math.min(pagination.total_pages, prev + 1))
+                handlePageChange(Math.min(pagination.total_pages, page + 1))
               }
               className="flex items-center gap-1 font-medium transition hover:text-slate-800 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
             >
