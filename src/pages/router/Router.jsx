@@ -8,17 +8,23 @@ import CreateLink from "../createLink/CreateLink";
 import Profile from "../profile/Profile";
 import AuthLayout from "../../components/layouts/AuthLayout";
 import MainLayout from "../../components/layouts/MainLayout";
+import PrivateRoute from "./PrivateRoute";
 
 export default function MainRouter() {
   return (
     <Routes>
       <Route element={<MainLayout />}>
-        <Route path="*" element={<NotFound />} />
         <Route path="/" element={<LandingPage />} />
-        <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/create-link" element={<CreateLink />} />
-        <Route path="/profile" element={<Profile />} />
+
+        <Route element={<PrivateRoute />}>
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/create-link" element={<CreateLink />} />
+          <Route path="/profile" element={<Profile />} />
+        </Route>
+
+        <Route path="*" element={<NotFound />} />
       </Route>
+
       <Route element={<AuthLayout />}>
         <Route path="/register" element={<Register />} />
         <Route path="/login" element={<Login />} />
