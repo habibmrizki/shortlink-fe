@@ -5,7 +5,7 @@ import "react-toastify/dist/ReactToastify.css";
 import { BrowserRouter } from "react-router";
 import { Provider } from "react-redux";
 import { store } from "./redux/store";
-import MainRouter from "./pages/router/Router";
+import MainRouter from "./router/Router";
 import { ToastContainer } from "react-toastify";
 
 createRoot(document.getElementById("root")).render(
