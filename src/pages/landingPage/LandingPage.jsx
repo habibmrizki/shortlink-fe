@@ -53,7 +53,8 @@ const LandingPage = () => {
     } else {
       navigate("/login", {
         state: {
-          successMessage: "Please log in first to create and manage short links.",
+          successMessage:
+            "Please log in first to create and manage short links.",
         },
       });
     }
