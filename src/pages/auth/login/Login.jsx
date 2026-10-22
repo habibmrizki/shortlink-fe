@@ -1,16 +1,84 @@
-import { useState } from "react";
-import { ArrowRight, Eye, EyeOff } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Link, useNavigate, useLocation } from "react-router";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  ArrowRight,
+  Eye,
+  EyeOff,
+  Loader2,
+  AlertCircle,
+  CheckCircle2,
+} from "lucide-react";
+import {
+  loginAction,
+  resetAuthState,
+} from "../../../redux/slices/auth/authSlice";
 
 const Login = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const dispatch = useDispatch();
+  const { isLoading, isError, errorMessage, isAuthenticated } = useSelector(
+    (state) => state.auth
+  );
+
+  const [email, setEmail] = useState(location.state?.registeredEmail || "");
+  const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [localError, setLocalError] = useState("");
+  const [flashMessage, setFlashMessage] = useState(
+    location.state?.successMessage || ""
+  );
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate("/");
+    }
+  }, [isAuthenticated, navigate]);
+
+  useEffect(() => {
+    return () => {
+      dispatch(resetAuthState());
+    };
+  }, [dispatch]);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLocalError("");
+    setFlashMessage("");
+
+    const cleanEmail = email.trim();
+    if (!cleanEmail) {
+      setLocalError("Email address is required.");
+      return;
+    }
+
+    if (!password) {
+      setLocalError("Password is required.");
+      return;
+    }
+
+    const result = await dispatch(
+      loginAction({ email: cleanEmail, password })
+    );
+
+    if (loginAction.fulfilled.match(result)) {
+      navigate("/");
+    }
+  };
+
+  const displayedError = localError || (isError && errorMessage);
 
   return (
     <div className="relative flex flex-1 flex-col items-center justify-center overflow-hidden bg-linear-to-br from-brand-background via-brand-background to-slate-100 px-4 py-10 font-sans antialiased">
       <div className="w-full max-w-md overflow-hidden rounded-md border border-slate-100 bg-brand-content shadow-[0_4px_24px_rgb(15,23,42,0.06)]">
         <div className="bg-slate-100 px-8 py-3 text-center">
-          <h1 className="text-base font-extrabold tracking-tighter text-slate-900">
+          <Link
+            to="/"
+            className="text-base font-extrabold tracking-tighter text-slate-900 transition hover:text-blue-600"
+          >
             ShortLink
-          </h1>
+          </Link>
         </div>
 
         <div className="p-8">
@@ -21,7 +89,24 @@ const Login = () => {
             Please enter your details to sign in.
           </p>
 
-          <div className="mt-7 space-y-5">
+          {flashMessage && (
+            <div className="mt-4 flex items-start gap-2.5 rounded-md border border-emerald-200 bg-emerald-50 p-3 text-xs text-emerald-700">
+              <CheckCircle2
+                size={16}
+                className="mt-0.5 shrink-0 text-emerald-500"
+              />
+              <span className="leading-relaxed">{flashMessage}</span>
+            </div>
+          )}
+
+          {displayedError && (
+            <div className="mt-4 flex items-start gap-2.5 rounded-md border border-red-200 bg-red-50 p-3 text-xs text-red-700">
+              <AlertCircle size={16} className="mt-0.5 shrink-0 text-red-500" />
+              <span className="leading-relaxed">{displayedError}</span>
+            </div>
+          )}
+
+          <form onSubmit={handleSubmit} className="mt-7 space-y-5">
             {/* email */}
             <div>
               <label
@@ -33,8 +118,16 @@ const Login = () => {
               <input
                 id="email"
                 type="email"
+                value={email}
+                onChange={(e) => {
+                  setEmail(e.target.value);
+                  if (localError) setLocalError("");
+                  if (isError) dispatch(resetAuthState());
+                }}
+                disabled={isLoading}
                 placeholder="name@company.com"
-                className="w-full rounded-md border border-slate-200 bg-brand-background px-3 py-2.5 text-sm text-slate-800 outline-none transition placeholder:text-slate-300 focus:border-brand-text focus:ring-2 focus:ring-brand-text/20"
+                required
+                className="w-full rounded-md border border-slate-200 bg-brand-background px-3 py-2.5 text-sm text-slate-800 outline-none transition placeholder:text-slate-300 focus:border-brand-text focus:ring-2 focus:ring-brand-text/20 disabled:bg-slate-100"
               />
             </div>
 
@@ -47,19 +140,24 @@ const Login = () => {
                 >
                   Password
                 </label>
-                <a
-                  href="#"
-                  className="text-[11px] font-bold text-brand-text hover:underline"
-                >
+                <span className="text-[11px] font-bold text-brand-text cursor-pointer hover:underline">
                   Forgot password?
-                </a>
+                </span>
               </div>
               <div className="relative">
                 <input
                   id="password"
                   type={showPassword ? "text" : "password"}
+                  value={password}
+                  onChange={(e) => {
+                    setPassword(e.target.value);
+                    if (localError) setLocalError("");
+                    if (isError) dispatch(resetAuthState());
+                  }}
+                  disabled={isLoading}
                   placeholder="••••••••"
-                  className="w-full rounded-md border border-slate-200 bg-brand-background py-2.5 pl-3 pr-10 text-sm text-slate-800 outline-none transition placeholder:text-slate-300 focus:border-brand-text focus:ring-2 focus:ring-brand-text/20"
+                  required
+                  className="w-full rounded-md border border-slate-200 bg-brand-background py-2.5 pl-3 pr-10 text-sm text-slate-800 outline-none transition placeholder:text-slate-300 focus:border-brand-text focus:ring-2 focus:ring-brand-text/20 disabled:bg-slate-100"
                 />
                 <button
                   type="button"
@@ -73,11 +171,21 @@ const Login = () => {
             </div>
 
             <button
-              type="button"
-              className="flex w-full items-center justify-center gap-2 rounded-md bg-linear-to-r from-brand-text to-blue-600 px-4 py-3 text-sm font-semibold text-white shadow-sm transition hover:opacity-90"
+              type="submit"
+              disabled={isLoading}
+              className="flex w-full items-center justify-center gap-2 rounded-md bg-linear-to-r from-brand-text to-blue-600 px-4 py-3 text-sm font-semibold text-white shadow-sm transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60 cursor-pointer"
             >
-              Log In
-              <ArrowRight size={16} strokeWidth={2.5} />
+              {isLoading ? (
+                <>
+                  <Loader2 size={16} className="animate-spin" />
+                  <span>Signing In...</span>
+                </>
+              ) : (
+                <>
+                  <span>Log In</span>
+                  <ArrowRight size={16} strokeWidth={2.5} />
+                </>
+              )}
             </button>
 
             <div className="flex items-center gap-3">
@@ -90,7 +198,7 @@ const Login = () => {
 
             <button
               type="button"
-              className="flex w-full items-center justify-center gap-2.5 rounded-md border border-slate-200 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
+              className="flex w-full items-center justify-center gap-2.5 rounded-md border border-slate-200 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 transition hover:bg-slate-50 cursor-pointer"
             >
               <svg
                 width="16"
@@ -117,15 +225,18 @@ const Login = () => {
               </svg>
               Sign in with Google
             </button>
-          </div>
+          </form>
         </div>
       </div>
 
       <p className="mt-8 text-xs text-slate-600">
         Don&apos;t have an account?{" "}
-        <a href="#" className="font-bold text-brand-text hover:underline">
+        <Link
+          to="/register"
+          className="font-bold text-brand-text hover:underline"
+        >
           Sign up
-        </a>
+        </Link>
       </p>
     </div>
   );
