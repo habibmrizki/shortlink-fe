@@ -28,7 +28,7 @@ const rootReducer = combineReducers({
 const persistConfig = {
   key: "shortlink-root",
   storage,
-  whitelist: ["auth"], // persist auth session
+  whitelist: ["auth"],
 };
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);
