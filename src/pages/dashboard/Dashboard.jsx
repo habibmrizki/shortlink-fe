@@ -32,9 +32,6 @@ const Dashboard = () => {
   const urlSearch = searchParams.get("search") || "";
   const page = Number(searchParams.get("page")) || 1;
 
-  const urlSearch = searchParams.get("search") || "";
-  const urlPage = Number(searchParams.get("page")) || 1;
-
   const { links, pagination, isLoading, isDeleting, error, successMessage } =
     useSelector((state) => state.link);
 
@@ -90,45 +87,6 @@ const Dashboard = () => {
   }, [searchQuery, searchParams, setSearchParams]);
 
   useEffect(() => {
-    const paramSearch = searchParams.get("search") || "";
-    if (paramSearch !== searchQuery) {
-      setSearchQuery(paramSearch);
-    }
-    const paramPage = Number(searchParams.get("page")) || 1;
-    if (paramPage !== page) {
-      setPage(paramPage);
-    }
-  }, [searchParams]);
-
-  // Debounce search query updates to URL parameter with 3000ms delay
-  useEffect(() => {
-    const currentParam = searchParams.get("search") || "";
-
-    if (searchQuery.trim() !== currentParam) {
-      setIsDebouncing(true);
-
-      const timer = setTimeout(() => {
-        const newParams = new URLSearchParams(searchParams);
-        if (searchQuery.trim()) {
-          newParams.set("search", searchQuery.trim());
-          newParams.set("page", "1");
-          setPage(1);
-        } else {
-          newParams.delete("search");
-        }
-        setSearchParams(newParams, { replace: true });
-        setIsDebouncing(false);
-      }, 3000);
-
-      return () => {
-        clearTimeout(timer);
-      };
-    } else {
-      setIsDebouncing(false);
-    }
-  }, [searchQuery, searchParams, setSearchParams]);
-
-  useEffect(() => {
     dispatch(getLinksAction({ page, limit: 10 }));
   }, [dispatch, page]);
 
@@ -170,23 +128,6 @@ const Dashboard = () => {
   };
 
   const handlePageChange = (newPage) => {
-    const newParams = new URLSearchParams(searchParams);
-    newParams.set("page", newPage.toString());
-    setSearchParams(newParams);
-  };
-
-  const handleClearSearch = () => {
-    setSearchQuery("");
-    setIsDebouncing(false);
-    const newParams = new URLSearchParams(searchParams);
-    newParams.delete("search");
-    newParams.set("page", "1");
-    setPage(1);
-    setSearchParams(newParams, { replace: true });
-  };
-
-  const handlePageChange = (newPage) => {
-    setPage(newPage);
     const newParams = new URLSearchParams(searchParams);
     newParams.set("page", newPage.toString());
     setSearchParams(newParams);
