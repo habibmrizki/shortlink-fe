@@ -8,7 +8,6 @@ import {
   EyeOff,
   Loader2,
   AlertCircle,
-  CheckCircle2,
 } from "lucide-react";
 import {
   registerAction,
@@ -19,8 +18,9 @@ import { toast } from "react-toastify";
 const Register = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const { isLoading, isSuccess, isError, errorMessage, successMessage } =
-    useSelector((state) => state.auth);
+  const { isLoading, isSuccess, isError, errorMessage } = useSelector(
+    (state) => state.auth,
+  );
 
   const [formData, setFormData] = useState({
     email: "",
@@ -77,12 +77,12 @@ const Register = () => {
 
     const result = await dispatch(registerAction({ email, password }));
     if (registerAction.fulfilled.match(result)) {
-      toast.success("Account created successfully! Redirecting to login...");
+      toast.success(
+        "Account created successfully! Please sign in with your credentials.",
+      );
       setTimeout(() => {
         navigate("/login", {
           state: {
-            successMessage:
-              "Account created successfully! Please sign in with your credentials.",
             registeredEmail: email,
           },
         });
@@ -117,19 +117,6 @@ const Register = () => {
           <div className="mb-5 flex items-start gap-2.5 rounded-md border border-red-200 bg-red-50 p-3 text-xs text-red-700">
             <AlertCircle size={16} className="mt-0.5 shrink-0 text-red-500" />
             <span className="leading-relaxed">{displayedError}</span>
-          </div>
-        )}
-
-        {isSuccess && (
-          <div className="mb-5 flex items-start gap-2.5 rounded-md border border-emerald-200 bg-emerald-50 p-3 text-xs text-emerald-700">
-            <CheckCircle2
-              size={16}
-              className="mt-0.5 shrink-0 text-emerald-500"
-            />
-            <span className="leading-relaxed">
-              {successMessage ||
-                "Registration successful! Redirecting to login..."}
-            </span>
           </div>
         )}
 
