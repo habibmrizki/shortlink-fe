@@ -1,7 +1,14 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate, useLocation } from "react-router";
 import { useDispatch, useSelector } from "react-redux";
-import { ArrowRight, Eye, EyeOff, Loader2, AlertCircle } from "lucide-react";
+import {
+  ArrowRight,
+  Eye,
+  EyeOff,
+  Loader2,
+  AlertCircle,
+  Link2,
+} from "lucide-react";
 import {
   loginAction,
   resetAuthState,
@@ -70,8 +77,11 @@ const Login = () => {
         <div className="bg-slate-100 px-8 py-3 text-center">
           <Link
             to="/"
-            className="text-base font-extrabold tracking-tighter text-slate-900 transition hover:text-blue-600"
+            className="inline-flex items-center justify-center gap-2 text-2xl font-extrabold tracking-tight text-slate-900 transition hover:text-blue-600"
           >
+            <span className="grid size-7 place-items-center rounded-md bg-blue-700 text-white">
+              <Link2 size={16} aria-hidden="true" />
+            </span>
             ShortLink
           </Link>
         </div>
