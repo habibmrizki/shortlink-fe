@@ -11,6 +11,7 @@ import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router";
 import { useSelector, useDispatch } from "react-redux";
 import { logoutAction } from "../../redux/slices/auth/authSlice";
+import { toast } from "react-toastify";
 
 export default function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -26,6 +27,7 @@ export default function Navbar() {
     await dispatch(logoutAction());
     setMobileOpen(false);
     setAccountMenuOpen(false);
+    toast.success("Logged out successfully.");
     navigate("/");
   };
 
@@ -81,7 +83,7 @@ export default function Navbar() {
                   onClick={() => setAccountMenuOpen((open) => !open)}
                   className="flex items-center gap-2 rounded-md p-1.5 text-left transition hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
-                  <span className="grid size-9 shrink-0 place-items-center rounded-full bg-blue-50 text-blue-700">
+                  <span className="grid size-9 shrink-0 place-items-center rounded-full bg-blue-50 ">
                     <UserRound size={18} aria-hidden="true" />
                   </span>
                   <span className="max-w-36 truncate text-sm font-medium text-slate-700">
