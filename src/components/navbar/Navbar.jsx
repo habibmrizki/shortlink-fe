@@ -40,9 +40,10 @@ export default function Navbar() {
         <div className="flex min-w-0 items-center gap-8">
           <Link
             to="/"
-            className="shrink-0 text-xl font-extrabold tracking-tight text-blue-700 transition hover:text-blue-800"
+            className="inline-flex shrink-0 items-center gap-2 text-xl font-extrabold tracking-tight text-blue-700 transition hover:text-blue-800"
             onClick={() => setMobileOpen(false)}
           >
+            <img src="/shortlink-mark.svg" alt="" className="size-8" />
             ShortLink
           </Link>
 
