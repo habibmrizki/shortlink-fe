@@ -1,6 +1,28 @@
+<p align="center">
+   <img src="public/shortlink-mark.svg" width="96" height="96" alt="ShortLink logo" />
+</p>
+
 # 🌐 Shortlink App — Frontend Client
 
 A modern, responsive, and intuitive web application client for the Shortlink platform, built with **React 19**, **Vite 8**, **Tailwind CSS v4**, and **Redux Toolkit**.
+
+## About ShortLink
+
+ShortLink helps users turn long URLs into concise, shareable links. Users can create an account, generate links with random or custom slugs, organize them in a dashboard, and track click counts. This repository contains the web interface; the API, authentication, data storage, and redirect service are provided by the [ShortLink backend](https://github.com/habibmrizki/shortlink-be).
+
+## 🖥️ Application Preview
+
+|                                  Landing Page                                  |                                Dashboard                                 |
+| :----------------------------------------------------------------------------: | :----------------------------------------------------------------------: |
+| <img src="public/landing-page.png" alt="ShortLink landing page" width="440" /> | <img src="public/dashboard.png" alt="ShortLink dashboard" width="440" /> |
+
+|                                Create Link                                 |                                  Profile                                  |
+| :------------------------------------------------------------------------: | :-----------------------------------------------------------------------: |
+| <img src="public/create-link.png" alt="Create a short link" width="440" /> | <img src="public/profile.png" alt="ShortLink user profile" width="440" /> |
+
+|                                 Login                                 |                                    Register                                     |
+| :-------------------------------------------------------------------: | :-----------------------------------------------------------------------------: |
+| <img src="public/login.png" alt="ShortLink login page" width="440" /> | <img src="public/register.png" alt="ShortLink registration page" width="440" /> |
 
 ---
 
